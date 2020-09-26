@@ -32,7 +32,6 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.0</version>
                 <executions>
-                    <!-- Attach the shade into the package phase -->
                     <execution>
                         <phase>package</phase>
                         <goals>

@@ -10,20 +10,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class UrlUtilsTest {
 
     @Test
-    void createFileName() throws MalformedURLException {
+    void createFileNameWithHostName() throws MalformedURLException {
         String fileName = UrlUtils.createFileName(new URL("http://google.com/"));
         assertEquals("/index.html", fileName);
+    }
 
-        fileName = UrlUtils.createFileName(new URL("http://google.com/?q=123"));
+    @Test
+    public void createFileNameWithEmptyQuery() throws MalformedURLException {
+        String fileName = UrlUtils.createFileName(new URL("http://google.com/?q=123"));
         assertEquals("/index.html", fileName);
+    }
 
-        fileName = UrlUtils.createFileName(new URL("http://google.com/some?q=123"));
+    @Test
+    public void createFileNameWithQuery() throws MalformedURLException {
+        String fileName = UrlUtils.createFileName(new URL("http://google.com/some?q=123"));
         assertEquals("/some.html", fileName);
+    }
 
-        fileName = UrlUtils.createFileName(new URL("http://google.com/some.pdf"));
+    @Test
+    public void createFileNameWithFileFormat() throws MalformedURLException {
+        String fileName = UrlUtils.createFileName(new URL("http://google.com/some.pdf"));
         assertEquals("/some.pdf", fileName);
+    }
 
-        fileName = UrlUtils.createFileName(new URL("http://google.com/some"));
+    @Test
+    public void createFileNameWithSubPath() throws MalformedURLException {
+        String fileName = UrlUtils.createFileName(new URL("http://google.com/some"));
         assertEquals("/some.html", fileName);
     }
 }

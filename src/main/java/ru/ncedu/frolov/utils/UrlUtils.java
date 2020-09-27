@@ -1,5 +1,10 @@
 package ru.ncedu.frolov.utils;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.*;
 import java.net.URL;
 
@@ -12,6 +17,25 @@ public class UrlUtils {
         ) {
             copy(in, out);
         }
+        String fileName = destination.getName();
+        if (fileName.contains(".html")) {
+            Document doc = Jsoup.parse(destination, null, source.toString());
+            Elements images = doc.getElementsByTag("img");
+            for (Element img : images) {
+                if (!img.attr("src").isEmpty()) {
+                    URL src = new URL(img.absUrl("src"));
+                    String imageName = createFileName(src);
+                    String imagePath = destination.getParent() + "/" + fileName.substring(0, fileName.length() - 5) + "_files/" + imageName;
+                    File image = new File(imagePath);
+                    copyURLContentToFile(src, image);
+                    img.attr("src", imagePath);
+                }
+            }
+            try (FileWriter w = new FileWriter(destination)) {
+                w.write(doc.toString());
+            }
+        }
+
     }
 
     public static void copy(BufferedInputStream in, BufferedOutputStream out) throws IOException {
@@ -34,10 +58,10 @@ public class UrlUtils {
 
     private static BufferedOutputStream openOutputStream(File file) throws IOException {
         if (file.exists()) {
-            System.out.println("File is already exists. Do you want to replace it? Type: yes or no");
+            System.out.println("File " + file.getName() + " is already exists. Do you want to replace it? Type: yes or no");
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String answer = reader.readLine();
-            reader.close();
+            //reader.close();
             if ("yes".equals(answer)) {
                 return new BufferedOutputStream(new FileOutputStream(file));
             } else {

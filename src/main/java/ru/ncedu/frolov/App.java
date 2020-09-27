@@ -17,7 +17,8 @@ public class App {
 
             URL url = argsProvider.getUrl();
             String fileName = UrlUtils.createFileName(url);
-            File file = new File(argsProvider.getPath() + fileName);
+            String filePath = argsProvider.getPath() + fileName;
+            File file = new File(filePath);
 
             UrlUtils.copyURLContentToFile(url, file);
 

@@ -7,18 +7,18 @@ public class UrlUtils {
     public static final String DEFAULT_FILENAME = "/index.html";
 
     public static void copyURLContentToFile(URL source, File destination) throws IOException {
-        try (InputStream in = new BufferedInputStream(source.openStream());
-             OutputStream out = openOutputStream(destination)
+        try (BufferedInputStream in = new BufferedInputStream(source.openStream());
+             BufferedOutputStream out = openOutputStream(destination)
         ) {
             copy(in, out);
         }
     }
 
-    public static void copy(InputStream in, OutputStream out) throws IOException {
-        int data = in.read();
-        while (data != -1) {
-            out.write(data);
-            data = in.read();
+    public static void copy(BufferedInputStream in, BufferedOutputStream out) throws IOException {
+        byte[] buff = new byte[32 * 1024];
+        int len = 0;
+        while ((len = in.read(buff)) > 0) {
+            out.write(buff, 0, len);
         }
     }
 
@@ -32,14 +32,14 @@ public class UrlUtils {
         return url.getPath() + ".html";
     }
 
-    private static FileOutputStream openOutputStream(File file) throws IOException {
+    private static BufferedOutputStream openOutputStream(File file) throws IOException {
         if (file.exists()) {
             System.out.println("File is already exists. Do you want to replace it? Type: yes or no");
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String answer = reader.readLine();
             reader.close();
             if ("yes".equals(answer)) {
-                return new FileOutputStream(file);
+                return new BufferedOutputStream(new FileOutputStream(file));
             } else {
                 System.out.println("See you next time");
                 System.exit(0);
@@ -58,6 +58,6 @@ public class UrlUtils {
                 }
             }
         }
-        return new FileOutputStream(file);
+        return new BufferedOutputStream(new FileOutputStream(file));
     }
 }

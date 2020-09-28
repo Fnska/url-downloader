@@ -3,10 +3,20 @@ package ru.ncedu.frolov.utils;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * The class represents state of passed arguments
+ */
 public class CommandLineArgsProvider {
     private URL url;
     private String path = System.getProperty("user.dir");
     private boolean isOpenAfter = false;
+
+    /**
+     * Command line arguments like: URL [path\to\file -o]<br>
+     * Example: http://www.example.org/ [C:\\path\\to\\folder] [-o] <br>
+     * where default path is a current directory <br>
+     * where "-o" is flag to open file after downloading
+     */
     private String[] args;
 
     public CommandLineArgsProvider() {
@@ -16,6 +26,11 @@ public class CommandLineArgsProvider {
         setArgs(args);
     }
 
+    /**
+     * Checks for validity of passed arguments
+     *
+     * @throws MalformedURLException 1st argument is not correct URL
+     */
     private void checkArgs() throws MalformedURLException {
         if (args.length < 1) {
             throw new RuntimeException("Not any URL provided");
@@ -49,15 +64,7 @@ public class CommandLineArgsProvider {
         return path;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
     public boolean isOpenAfter() {
         return isOpenAfter;
-    }
-
-    public void setOpenAfter(boolean openAfter) {
-        isOpenAfter = openAfter;
     }
 }

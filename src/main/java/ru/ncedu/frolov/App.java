@@ -30,7 +30,7 @@ public class App {
             System.err.println("Invalid or empty URL provided");
             System.exit(1);
         } catch (IOException e) {
-            System.err.println("Invalid file");
+            System.err.println("File not found or invalid");
             System.exit(1);
         } catch (Exception e) {
             System.err.println("Something went wrong");

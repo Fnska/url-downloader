@@ -7,13 +7,21 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class UrlUtils {
     public static final String DEFAULT_FILENAME = "/index.html";
 
+    /**
+     * Copies content on URL with embedded resources (images)
+     *
+     * @param source      {@link URL} of base resource
+     * @param destination {@link File} where to copy
+     * @throws IOException
+     */
     public static void copyURLContentToFile(URL source, File destination) throws IOException {
         try (BufferedInputStream in = new BufferedInputStream(source.openStream());
-             BufferedOutputStream out = openOutputStream(destination)
+             BufferedOutputStream out = new BufferedOutputStream(openOutputStream(destination))
         ) {
             copy(in, out);
         }
@@ -21,17 +29,19 @@ public class UrlUtils {
         if (fileName.contains(".html")) {
             Document doc = Jsoup.parse(destination, null, source.toString());
             Elements images = doc.getElementsByTag("img");
+            String fileNameWithoutFormat = fileName.substring(0, fileName.length() - 5);
             for (Element img : images) {
                 if (!img.attr("src").isEmpty()) {
                     URL src = new URL(img.absUrl("src"));
                     String imageName = createFileName(src);
-                    String imagePath = destination.getParent() + "/" + fileName.substring(0, fileName.length() - 5) + "_files/" + imageName;
+                    String imagePath = destination.getParent() + "/" + fileNameWithoutFormat + "_files/" + imageName;
                     File image = new File(imagePath);
                     copyURLContentToFile(src, image);
                     img.attr("src", imagePath);
                 }
             }
-            try (FileWriter w = new FileWriter(destination)) {
+            try (BufferedWriter w = new BufferedWriter
+                    (new OutputStreamWriter(openOutputStream(destination), StandardCharsets.UTF_8))) {
                 w.write(doc.toString());
             }
         }
@@ -56,17 +66,20 @@ public class UrlUtils {
         return url.getPath() + ".html";
     }
 
-    private static BufferedOutputStream openOutputStream(File file) throws IOException {
+    /**
+     * Open output stream to file and ask for replace
+     *
+     * @param file {@link File} to open stream
+     * @return {@link FileOutputStream}
+     * @throws IOException
+     */
+    private static FileOutputStream openOutputStream(File file) throws IOException {
         if (file.exists()) {
             System.out.println("File " + file.getName() + " is already exists. Do you want to replace it? Type: yes or no");
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String answer = reader.readLine();
-            //reader.close();
             if ("yes".equals(answer)) {
-                return new BufferedOutputStream(new FileOutputStream(file));
-            } else {
-                System.out.println("See you next time");
-                System.exit(0);
+                return new FileOutputStream(file);
             }
             if (file.isDirectory()) {
                 throw new IOException("File '" + file + "' exists but is a directory");
@@ -82,6 +95,6 @@ public class UrlUtils {
                 }
             }
         }
-        return new BufferedOutputStream(new FileOutputStream(file));
+        return new FileOutputStream(file);
     }
 }

@@ -1,6 +1,6 @@
 # url-downloader
 
-## Start example windows
+## Start example Windows
 
 ```
 mvn clean package

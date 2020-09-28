@@ -7,7 +7,6 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 public class UrlUtils {
     public static final String DEFAULT_FILENAME = "/index.html";
@@ -19,16 +18,13 @@ public class UrlUtils {
      * @param destination {@link File} where to copy
      * @throws IOException
      */
-    public static void copyURLContentToFile(URL source, File destination) throws IOException {
-        try (BufferedInputStream in = new BufferedInputStream(source.openStream());
-             BufferedOutputStream out = new BufferedOutputStream(openOutputStream(destination))
-        ) {
-            copy(in, out);
-        }
-        String fileName = destination.getName();
+    public static void copyURLFullContentToFiles(URL source, File destination) throws IOException {
+        copyURLContentToFile(source, destination); //Copy Base index.html or file
+        String fileName = destination.getName(); //Embedded resources if .html
         if (fileName.contains(".html")) {
             Document doc = Jsoup.parse(destination, null, source.toString());
             Elements images = doc.getElementsByTag("img");
+            Elements links = doc.getElementsByTag("link");
             String fileNameWithoutFormat = fileName.substring(0, fileName.length() - 5);
             for (Element img : images) {
                 if (!img.attr("src").isEmpty()) {
@@ -41,11 +37,19 @@ public class UrlUtils {
                 }
             }
             try (BufferedWriter w = new BufferedWriter
-                    (new OutputStreamWriter(openOutputStream(destination), StandardCharsets.UTF_8))) {
+                    (new OutputStreamWriter(openOutputStream(destination), doc.charset()))) {
                 w.write(doc.toString());
             }
         }
 
+    }
+
+    public static void copyURLContentToFile(URL source, File destination) throws IOException {
+        try (BufferedInputStream in = new BufferedInputStream(source.openStream());
+             BufferedOutputStream out = new BufferedOutputStream(openOutputStream(destination))
+        ) {
+            copy(in, out);
+        }
     }
 
     public static void copy(BufferedInputStream in, BufferedOutputStream out) throws IOException {

@@ -20,7 +20,7 @@ public class App {
             String filePath = argsProvider.getPath() + fileName;
             File file = new File(filePath);
 
-            UrlUtils.copyURLContentToFile(url, file);
+            UrlUtils.copyURLFullContentToFiles(url, file);
 
             if (argsProvider.isOpenAfter()) {
                 Desktop desktop = Desktop.getDesktop();
